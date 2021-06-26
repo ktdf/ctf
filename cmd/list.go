@@ -22,7 +22,7 @@ var listCmd = &cobra.Command{
 		checkPanic(err)
 		tasks := con.ListTasks()
 		for n, task := range tasks {
-			fmt.Printf("%3v: %s\n", n, task)
+			fmt.Printf("%3v: %s\n", n+1, task)
 		}
 	},
 }
