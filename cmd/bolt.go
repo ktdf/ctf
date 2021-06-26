@@ -71,6 +71,12 @@ func (db *conn) DoTask(i int) (string, error) {
 	return ret, err
 }
 
+func (db *conn) RmTask(i int) (task string, err error) {
+	_, byteTask, err := db.rmTask(i)
+	task = string(byteTask)
+	return
+}
+
 func (db *conn) rmTask(i int) (timestamp, task []byte, err error) {
 	err = db.db.Batch(func(tx *bolt.Tx) error {
 		aBucket := tx.Bucket([]byte("active"))
