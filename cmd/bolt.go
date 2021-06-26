@@ -74,10 +74,12 @@ func (db *conn) DoTask(i int) (ret string, err error) {
 		}
 		return nil
 	})
-	err = db.addRecord(neededK, neededV, []byte("completed"))
-	if err != nil {
-		ret = ""
-		return
+	if neededK != nil {
+		err = db.addRecord(neededK, neededV, []byte("completed"))
+		if err != nil {
+			ret = ""
+			return
+		}
 	}
 	return
 }
