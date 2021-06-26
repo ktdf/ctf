@@ -15,7 +15,7 @@ var addCmd = &cobra.Command{
 	Short: "Adds new task to the list",
 	Run: func(cmd *cobra.Command, args []string) {
 		var con conn
-		db , err := bolt.Open("ctm.db", 0755, nil)
+		db , err := bolt.Open(DbFile, 0755, nil)
 		checkPanic(err)
 		con.db = db
 		err = con.Generate()

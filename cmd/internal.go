@@ -5,6 +5,12 @@ import (
 	"strings"
 )
 
+var DbFile string
+
+func init() {
+	DbFile = "ctm.db"
+}
+
 func checkPanic(err error) {
 	if err != nil {
 		panic(err)
