@@ -57,8 +57,21 @@ func (db *conn) listTasks(since, until int64, bucket []byte) []string {
 	return ret
 }
 
-func (db *conn) DoTask(i int) (ret string, err error) {
-	var neededK, neededV []byte
+func (db *conn) DoTask(i int) (string, error) {
+	neededK, neededV, err := db.rmTask(i)
+	var ret string
+	if neededK != nil {
+		ret = string(neededV)
+		err = db.addRecord(neededK, neededV, []byte("completed"))
+		if err != nil {
+			ret = ""
+			return "", err
+		}
+	}
+	return ret, err
+}
+
+func (db *conn) rmTask(i int) (timestamp, task []byte, err error) {
 	err = db.db.Batch(func(tx *bolt.Tx) error {
 		aBucket := tx.Bucket([]byte("active"))
 		c := aBucket.Cursor()
@@ -66,22 +79,17 @@ func (db *conn) DoTask(i int) (ret string, err error) {
 		for n := 0; k != nil; k, v = c.Next() {
 			n++
 			if n == i {
-				ret = string(v)
-				neededK, neededV = k, v
+				timestamp, task = k, v
 				c.Delete()
 				break
 			}
 		}
 		return nil
 	})
-	if neededK != nil {
-		err = db.addRecord(neededK, neededV, []byte("completed"))
-		if err != nil {
-			ret = ""
-			return
-		}
+	if timestamp != nil {
+		return timestamp, task, nil
 	}
-	return
+	return nil, nil, nil
 }
 
 func (db *conn) addRecord(timestamp, task, bucket []byte) error {
