@@ -2,13 +2,15 @@ package cmd
 
 import (
 	"encoding/binary"
+	"github.com/mitchellh/go-homedir"
 	"strings"
 )
 
-var DbFile string
+var DbFile, dir string
 
 func init() {
-	DbFile = "ctm.db"
+	dir, _ = homedir.Dir()
+	DbFile = dir+"/.config/ctm.db"
 }
 
 func checkPanic(err error) {
