@@ -38,6 +38,10 @@ func (db *conn) ListTasks() []string {
 	return db.listTasks(time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC).Unix(), time.Now().Unix(), []byte("active"))
 }
 
+func (db *conn) ListCompletedTasks() []string {
+	return db.listTasks(time.Now().Unix()-86400, time.Now().Unix(), []byte("completed"))
+}
+
 func (db *conn) listTasks(since, until int64, bucket []byte) []string {
 	var ret []string
 	db.db.View(func(tx *bolt.Tx) error {
