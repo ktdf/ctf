@@ -13,7 +13,10 @@ func checkPanic(err error) {
 
 func sliceToString(s []string) string {
 	var db strings.Builder
-	for _, word := range s {
+	for n, word := range s {
+		if n != 0 {
+			db.WriteString(" ")
+		}
 		db.WriteString(word)
 	}
 	return db.String()
