@@ -38,3 +38,16 @@ func (db *conn) AddTask(task []string) error {
 	}
 	return nil
 }
+
+func (db *conn) ListTasks() []string {
+	var ret []string
+	db.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("active"))
+		b.ForEach(func(_, v []byte) error {
+			ret = append(ret, string(v))
+			return nil
+		})
+		return nil
+	})
+	return ret
+}
