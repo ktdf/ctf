@@ -26,14 +26,8 @@ func (db *conn) Generate() error {
 
 func (db *conn) AddTask(task []string) error {
 	timestamp := TimestampToByte(time.Now().Unix())
-	if err := db.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("active"))
-		err := b.Put(timestamp, []byte(sliceToString(task)))
-		if err != nil {
-			return err
-		}
-		return nil
-	}); err != nil {
+	err := db.addRecord(timestamp, []byte(sliceToString(task)), []byte("active"))
+	if err != nil {
 		return err
 	}
 	return nil
@@ -50,4 +44,18 @@ func (db *conn) ListTasks() []string {
 		return nil
 	})
 	return ret
+}
+
+func (db *conn) addRecord(timestamp, task, bucket []byte) error {
+	if err := db.db.Batch(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucket)
+		err := b.Put(timestamp, task)
+		if err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
 }
