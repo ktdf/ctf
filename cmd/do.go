@@ -29,6 +29,10 @@ var addDo = &cobra.Command{
 		checkPanic(err)
 		ret, err := con.DoTask(i)
 		checkPanic(err)
-		fmt.Println("\""+ret+"\" has been completed")
+		if ret == "" {
+			fmt.Println("It looks like nothing was deleted")
+		} else {
+			fmt.Println("\"" + ret + "\" has been completed")
+		}
 	},
 }
