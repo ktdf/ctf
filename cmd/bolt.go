@@ -46,6 +46,31 @@ func (db *conn) ListTasks() []string {
 	return ret
 }
 
+func (db *conn) DoTask(i int) (ret string, err error) {
+	var neededK, neededV []byte
+	err = db.db.Batch(func(tx *bolt.Tx) error {
+		aBucket := tx.Bucket([]byte("active"))
+		c := aBucket.Cursor()
+		k, v := c.First()
+		for n := 0; k != nil; k, v = c.Next() {
+			n++
+			if n == i {
+				ret = string(v)
+				neededK, neededV = k, v
+				c.Delete()
+				break
+			}
+		}
+		return nil
+	})
+	err = db.addRecord(neededK, neededV, []byte("completed"))
+	if err != nil {
+		ret = ""
+		return
+	}
+	return
+}
+
 func (db *conn) addRecord(timestamp, task, bucket []byte) error {
 	if err := db.db.Batch(func(tx *bolt.Tx) error {
 		b := tx.Bucket(bucket)
