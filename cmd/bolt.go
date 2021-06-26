@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/binary"
 	"github.com/boltdb/bolt"
 	"time"
 )
@@ -34,11 +35,17 @@ func (db *conn) AddTask(task []string) error {
 }
 
 func (db *conn) ListTasks() []string {
+	return db.listTasks(time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC).Unix(), time.Now().Unix(), []byte("active"))
+}
+
+func (db *conn) listTasks(since, until int64, bucket []byte) []string {
 	var ret []string
 	db.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("active"))
-		b.ForEach(func(_, v []byte) error {
-			ret = append(ret, string(v))
+		b := tx.Bucket(bucket)
+		b.ForEach(func(t, v []byte) error {
+			if time := int64(binary.BigEndian.Uint64(t)); time >= since && time <= until {
+				ret = append(ret, string(v))
+			}
 			return nil
 		})
 		return nil
